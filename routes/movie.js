@@ -18,6 +18,22 @@ router.get('/', (req, res, next) => {
   })
 })
 
+router.get('/top10', (req, res, next) => {
+
+  const promise = Movie.find({ }).sort({imdb_score: -1}).limit(10)
+
+  promise.then((data) =>{
+    if (!data){
+      next({ message: 'The movies were not found.', code: 99})
+    }else{
+      res.json(data)
+    }
+  }).catch((err) => {
+    next({ message: 'The movies were not found.', code: 99})
+    res.end()
+  })
+})
+
 router.get('/:movie_id', (req, res, next) => {
  
   const id = req.params.movie_id
@@ -88,6 +104,35 @@ router.put('/:movie_id', (req, res, next) => {
 
   })
   
+})
+
+router.get('/between/:start_year/:end_year', (req,res,next) => {
+
+  const start_year = req.params.start_year
+  const end_year = req.params.end_year
+
+  const promise = Movie.find(
+    {
+      year : { "$gte": parseInt(start_year), "$lte": parseInt(end_year)} //>= <=
+      //year : { "$gt": parseInt(start_year), "$lt": parseInt(end_year)} // > <
+    }
+    )
+
+    promise.then((movie) => {
+
+      if (!movie){
+        next({ message: 'The movie was not found.', code: 99})
+      }else{
+        res.json(movie)
+      }
+  
+    }).catch((err) => {
+  
+      next({ message: 'The movie was not found.', code: 99})
+      res.end()
+  
+    })
+
 })
 
 router.post('/', (req, res, next) => {
