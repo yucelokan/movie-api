@@ -5,16 +5,44 @@ const router = express.Router();
 const Movie = require('../models/Movie')
 
 router.get('/', (req, res, next) => {
-  const promise = Movie.find({ })
+  const promise = Movie.aggregate([
+      {
+        $lookup:{
+            from: 'directors',
+            localField: 'director_id',
+            foreignField: '_id',
+            as: 'director'
+        }
+      },
+      {
+        $unwind: {
+            path: '$director',
+            preserveNullAndEmptyArrays: true
+        }
+      }/*,
+      {
+          $project: {
+              _id: '$_id._id',
+              title: '$_id.title',
+              category: '$_id.category',
+              country: '$_id.country',
+              imdb_score: '$_id.imdb_score',
+              year: '$_id.year',
+              director_id: '$_id.director_id',
+              director:  '$director'
+          }
+      }*/
+  ])
+
   promise.then((data) =>{
-    if (!data){
-      next({ message: 'The movies were not found.', code: 99})
-    }else{
-      res.json(data)
-    }
+    if (data.length == 0)
+      next({ url: req.url, message: 'The movies were not found.', code: 99})
+
+    res.json(data)
+    
   }).catch((err) => {
-    next({ message: 'The movies were not found.', code: 99})
-    res.end()
+    console.log('url: ',req.url)
+    console.log('error: ', err.message)
   })
 })
 
@@ -23,14 +51,13 @@ router.get('/top10', (req, res, next) => {
   const promise = Movie.find({ }).sort({imdb_score: -1}).limit(10)
 
   promise.then((data) =>{
-    if (!data){
-      next({ message: 'The movies were not found.', code: 99})
-    }else{
-      res.json(data)
-    }
+    if (data.length == 0)
+      next({ url: req.url, message: 'The movies were not found.', code: 99})
+
+    res.json(data)
+    
   }).catch((err) => {
-    next({ message: 'The movies were not found.', code: 99})
-    res.end()
+    res.json(err)
   })
 })
 
@@ -41,17 +68,14 @@ router.get('/:movie_id', (req, res, next) => {
 
   promise.then((movie) => {
 
-    if (!movie){
-      next({ message: 'The movie was not found.', code: 99})
-    }else{
-      res.json(movie)
-    }
-
+    if (!movie)
+      next({ url: req.url, message: 'The movie was not found.', code: 99})
+    
+    res.json(movie)
+  
   }).catch((err) => {
-
-    next({ message: 'The movie was not found.', code: 99})
-    res.end()
-
+    console.log('url: ',req.url)
+    console.log('error: ',err.message)
   })
   
 })
@@ -63,17 +87,15 @@ router.delete('/:movie_id', (req, res, next) => {
 
   promise.then((movie) => { 
 
-    if (!movie){
-      next({ message: 'The movie was not found.', code: 99})
-    }else{
-      res.json({status: true})
-    }
+    if (!movie)
+      next({url:req.url, message: 'The movie was not found.', code: 99})
+
+    res.json({status: true})
+    
 
   }).catch((err) => {
-
-    next({ message: 'The movie was not found.', code: 99})
-    res.end()
-
+    console.log('url: ',req.url)
+    console.log('error: ', err.message)
   })
   
 })
@@ -91,17 +113,15 @@ router.put('/:movie_id', (req, res, next) => {
 
   promise.then((movie) => {
 
-    if (!movie){
-      next({ message: 'The movie was not found.', code: 99})
-    }else{
-      res.json(movie)
-    }
+    if (!movie)
+      next({url: req.url, message: 'The movie was not found.', code: 99})
+
+    res.json(movie)
+    
 
   }).catch((err) => {
-
-    next({ message: 'The movie was not found.', code: 99})
-    res.end()
-
+    console.log('url: ',req.url)
+    console.log('error: ', err.message)
   })
   
 })
@@ -117,20 +137,16 @@ router.get('/between/:start_year/:end_year', (req,res,next) => {
       //year : { "$gt": parseInt(start_year), "$lt": parseInt(end_year)} // > <
     }
     )
-
+    
     promise.then((movie) => {
-
-      if (!movie){
-        next({ message: 'The movie was not found.', code: 99})
-      }else{
-        res.json(movie)
-      }
+      if (movie.length == 0)
+        next({url:req.url, message: 'The movie was not found.', code: 99})
+        
+      res.json(movie)
   
     }).catch((err) => {
-  
-      next({ message: 'The movie was not found.', code: 99})
-      res.end()
-  
+      console.log('url: ',req.url)
+      console.log('error: ', err.message)
     })
 
 })

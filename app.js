@@ -6,6 +6,7 @@ const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
 const movieRouter = require('./routes/movie');
+const directorRouter = require('./routes/director');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api/movies', movieRouter);
+app.use('/api/directors', directorRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -38,7 +40,7 @@ app.use((err, req, res, next) => {
 
   // render the error page
   res.status(err.status || 500);
-  res.json( { error: { message: err.message, code: err.code } } );
+  res.json( { error: { url: req.url, message: err.message, code: err.code } } );
 });
 
 module.exports = app;
