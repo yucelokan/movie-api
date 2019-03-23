@@ -162,13 +162,13 @@ router.get('/:director_id/best10movies', (req, res, next) => {
                 name: '$_id.name',
                 surname: '$_id.surname',
                 bio: '$_id.bio',
-                best10movies:  '$movies'
+                movies:  '$movies'
             }
         }
     ])
       
       promise.then((data) => {
-          res.json(data)
+          res.json(data[0])
       }).catch((err) => {
           console.log('url: ',req.url)
           console.log('error: ', err.message)
