@@ -83,7 +83,7 @@ router.get('/:movie_id', (req, res, next) => {
 router.delete('/:movie_id', (req, res, next) => {
  
   const id = req.params.movie_id
-  const promise = Movie.findByIdAndDelete(id)
+  const promise = Movie.findOneAndDelete(id)
 
   promise.then((movie) => { 
 
@@ -104,7 +104,7 @@ router.put('/:movie_id', (req, res, next) => {
  
   const id = req.params.movie_id
   const reqBody = req.body
-  const promise = Movie.findByIdAndUpdate(
+  const promise = Movie.findOneAndUpdate(
     id,
     reqBody,
     {
